@@ -4,7 +4,7 @@ class ProjectsController < ApiController
 
   # GET /projects or /projects.json
   def index
-    @projects = current_user.created_projects.all
+    @projects = current_user.user_projects
   end
 
   # GET /projects/1 or /projects/1.json

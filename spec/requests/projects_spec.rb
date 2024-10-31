@@ -6,7 +6,7 @@ require 'rails_helper'
 describe ProjectsController, type: :request do
 
     let(:user) { create(:user) }
-    
+
     before do
         sign_in(user) if user
     end
@@ -30,6 +30,18 @@ describe ProjectsController, type: :request do
             expect(JSON.parse(response.body).length).to eq(1)
         end
 
+        context 'when user has shared projects' do
+            let(:shared_project) { create(:project) }
+            let(:shared_resource) { create(:shared_resource, shareable: shared_project, user: user) }
+
+            before { shared_resource }
+
+            it 'returns shared projects' do
+                get '/projects.json'
+                expect(JSON.parse(response.body).length).to eq(2)
+            end
+        end
+
         context 'when user is not signed in' do
             let(:user) { nil }
             let!(:project) { create(:project)}
@@ -40,7 +52,7 @@ describe ProjectsController, type: :request do
             end
         end
     end
-    
+
     describe 'POST /projects' do
         it 'creates a project' do
             expect {
@@ -64,10 +76,10 @@ describe ProjectsController, type: :request do
             end
         end
     end
-    
+
     describe 'GET /projects/:id' do
         let(:project) { create(:project, user:) }
-    
+
         it 'returns successful' do
             get "/projects/#{project.id}.json"
             expect(response).to be_successful
@@ -97,10 +109,10 @@ describe ProjectsController, type: :request do
             end
         end
     end
-    
+
     describe 'PUT /projects/:id' do
         let(:project) { create(:project, user:) }
-    
+
         it 'updates a project' do
             put "/projects/#{project.id}.json", params: { project: { name: 'Updated Project' } }
             expect(response).to be_successful
@@ -133,10 +145,10 @@ describe ProjectsController, type: :request do
             end
         end
     end
-    
+
     describe 'DELETE /projects/:id' do
         let(:project) { create(:project, user:) }
-    
+
         it 'deletes a project' do
             delete "/projects/#{project.id}.json"
             expect(response).to be_successful

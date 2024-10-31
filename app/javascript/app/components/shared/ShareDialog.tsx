@@ -85,7 +85,7 @@ export default function ShareDialog({
                             <div className="flex items-center space-x-2">
                                 <Avatar>
                                     <AvatarImage src={user.avatar_url} alt={user.name} />
-                                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <p className="font-medium">{user.name}</p>
