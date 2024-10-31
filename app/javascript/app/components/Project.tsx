@@ -8,7 +8,7 @@ import { Link, useParams } from 'react-router-dom'
 import useFetchProject from '@/api/useFetchProject'
 import { ListLoader } from './Projects'
 import useFetchReports from '@/api/useFetchReports'
-import { Document, Project, User } from '@/models'
+import { Document, Project, SharedResource, User } from '@/models'
 import { Report } from '@/models/Report'
 import { format } from "date-fns";
 import useCreateReport from '@/api/useCreateReport'
@@ -19,6 +19,7 @@ import ShareDialog from './shared/ShareDialog'
 import Header from './shared/Header'
 import Layout from './shared/Layout'
 import Page from './shared/Page'
+import useUpdateSharedResource from '@/api/useUpdateSharedResource'
 
 export default function Component() {
 
@@ -33,6 +34,17 @@ export default function Component() {
     const handleShare = (item: Report | Document | typeof project) => {
         setSharingItem(item);
         setIsShareDialogOpen(true);
+    };
+
+    const { mutate } = useUpdateSharedResource(id, 'Project');
+
+    const handleUpdateUserPermission = (userId: number, permission: 'full access' | 'edit' | 'view'): void => {
+        console.log('handleUpdateUserPermission', userId, permission);
+        const newSharedResource: SharedResource = {
+            user_id: userId,
+            permission_level: permission,
+        };
+        mutate(newSharedResource);
     };
 
     return (
@@ -85,9 +97,7 @@ export default function Component() {
                 title={sharingItem ? sharingItem === project ? `Share Project: ${project.name}` : 'title' in sharingItem ? `Share Report: ${sharingItem.title}` : `Share Document: ${sharingItem.name}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
-                    alert('Function not implemented.')
-                }}
+                handleUpdateUserPermission={handleUpdateUserPermission}
                 handleAddUser={function (): void {
                     alert('Function not implemented.')
                 }}
