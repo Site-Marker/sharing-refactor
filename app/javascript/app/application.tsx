@@ -66,9 +66,12 @@ const WelcomePage = () => <div className="min-h-screen bg-gray-800 text-white fl
 </div>
 
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-    <React.StrictMode>
-        <Index />
-    </React.StrictMode>
-);
+const root = document.getElementById('root') as HTMLElement;
+
+if (root) {
+    ReactDOM.createRoot(root).render(
+        <React.StrictMode>
+            <Index />
+        </React.StrictMode>
+    );
+}
