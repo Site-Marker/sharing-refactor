@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  get 'shared_resources/create'
-
   resources :documents
   resources :reports
 
@@ -12,7 +10,7 @@ Rails.application.routes.draw do
   resources :users, only: [:index]
   resources :shared_resources, only: [:show, :create]
 
-  put 'shared_resources/:resource_type/:resource_id/:user_id', to: 'shared_resources#update_permission'
+  put 'shared_resources/:shareable_type/:shareable_id/:user_id', to: 'shared_resources#update_permission'
 
   devise_for :users
   root 'home#index'

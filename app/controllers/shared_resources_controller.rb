@@ -17,20 +17,19 @@ class SharedResourcesController < ApplicationController
   end
 
   def update_permission
-    shared_resource = SharedResource.find_by(shareable_id: params[:resource_id], user_id: params[:user_id], shareable_type: params[:resource_type])
-
-    if shared_resource.nil?
-      render json: { error: "Shared resource not found" }, status: :not_found and return
-    end
-
-    # Update permission level if found
-    permission_level = params.dig(:shared_resource,:permission_level)
-    if shared_resource.update(permission_level:)
+    shared_resource = SharedResource.find_or_initialize_by(
+      shareable_type: params[:shareable_type],
+      shareable_id: params[:shareable_id],
+      user_id: params[:user_id]
+    )
+  
+    shared_resource.permission_level = params.dig(:shared_resource, :permission_level)
+  
+    if shared_resource.save
       render json: { message: "Permission updated successfully", shared_resource: shared_resource }, status: :ok
     else
       render json: { error: shared_resource.errors.full_messages }, status: :unprocessable_entity
     end
-
   end
 
   def show

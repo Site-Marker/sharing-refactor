@@ -46,16 +46,22 @@ RSpec.describe "SharedResources", type: :request do
       end
 
       context 'when shared resource is valid' do
+        let(:shared_resource) { create(:shared_resource, shareable: project, user: user) }
+
         it 'updates a shared resource' do
-            put "/shared_resources/#{project.id}/#{user.id}/Project.json", params: { shared_resource: { permission_level: 'view' } }
-            expect(shared_resource.reload.permission_level).to eq('view')
+          shared_resource
+          put "/shared_resources/Project/#{project.id}/#{user.id}.json", 
+              params: { shared_resource: { permission_level: 'view' } }
+          expect(response).to be_successful
+          expect(shared_resource.reload.permission_level).to eq('view')
         end
       end
 
       context 'when shared resource is invalid' do
         it 'returns unprocessable entity' do
-            put "/shared_resources/#{project.id}/#{user.id}/Project.json", params: { shared_resource: { permission_level: '' } }
-            expect(response).to be_not_found
+            put "/shared_resources/Project/#{project.id}/#{user.id}.json", 
+                params: { shared_resource: { permission_level: '' } }
+            expect(response).to be_unprocessable
         end
       end
     end
