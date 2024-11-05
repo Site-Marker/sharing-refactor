@@ -20,22 +20,19 @@ describe User, type: :model do
         end
 
         context 'when user has shared projects' do
-            let(:shared_project) { create(:project) }
-            let(:shared_resource) { create(:shared_resource, shareable: shared_project, user: user) }
-
-            before { shared_resource }
+            let!(:shared_project) { create(:project) }
+            let!(:shared_resource) { create(:shared_resource, shareable: shared_project, user: user) }
 
             it "returns the user's created projects and shared projects" do
-                expect(user.user_projects).to eq([created_project, shared_project])
+                expect(user.user_projects).to match_array([created_project, shared_project])
             end
         end
 
         context 'when another user tries to access shared projects' do
             let(:another_user) { create(:user) }
             let(:shared_project) { create(:project) }
-            let(:shared_resource) { create(:shared_resource, shareable: shared_project, user: user) }
+            let!(:shared_resource) { create(:shared_resource, shareable: shared_project, user: user) }
 
-            before { shared_resource }
 
             it "does not return the shared project" do
                 expect(another_user.user_projects).to eq([])

@@ -15,6 +15,6 @@ class User < ApplicationRecord
   has_many :shared_documents, through: :shared_resources, source: :shareable, source_type: 'Document'
 
   def user_projects
-    created_projects + shared_projects
+    Project.accessible_by(self)
   end
 end
