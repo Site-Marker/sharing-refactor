@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Button } from "@/ui/button"
 import { Input } from "@/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/ui/avatar"
 import { Plus, FileText, Upload, Share2, ArrowLeft } from "lucide-react"
 import { Link, useParams } from 'react-router-dom'
 import useFetchProject from '@/api/useFetchProject'
@@ -19,6 +18,7 @@ import ShareDialog from './shared/ShareDialog'
 import Header from './shared/Header'
 import Layout from './shared/Layout'
 import Page from './shared/Page'
+import UserAvatar from "@/components/shared/UserAvatar"
 import useUpdateSharedResource from '@/api/useUpdateSharedResource'
 
 export default function Component() {
@@ -39,7 +39,6 @@ export default function Component() {
     const { mutate } = useUpdateSharedResource(id, 'Project');
 
     const handleUpdateUserPermission = (userId: number, permission: 'full access' | 'edit' | 'view'): void => {
-        console.log('handleUpdateUserPermission', userId, permission);
         const newSharedResource: SharedResource = {
             user_id: userId,
             permission_level: permission,
@@ -70,13 +69,10 @@ export default function Component() {
                             <div className="flex flex-wrap gap-2">
                                 {usersPending && <ListLoader height={'h-6'} />}
                                 {users?.map?.((user: User) => (
-                                    <div key={user.id} className="flex items-center bg-gray-700 rounded-full px-3 py-1">
-                                        <Avatar className="w-6 h-6 mr-2">
-                                            <AvatarImage src={user.avatar_url} alt={user.name} />
-                                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <span className="text-sm">{user.name}</span>
-                                    </div>
+                                    <UserAvatar
+                                        key={user.id}
+                                        user={user}
+                                    />
                                 ))}
                             </div>
                             <Button variant="link" className="mt-2 text-white" onClick={() => handleShare(project)}>

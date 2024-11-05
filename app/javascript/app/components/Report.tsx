@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Button } from "@/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/ui/avatar"
 import { Share2, ArrowLeft, Edit, FileText } from "lucide-react"
 import { useParams } from 'react-router-dom'
 import { ListLoader } from './Projects'
@@ -19,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/ui/label'
 import { Input } from '@/ui/input'
 import useUpdateReport from '@/api/useUpdateReport'
+import UserAvatar from './shared/UserAvatar'
 
 export default function Component() {
 
@@ -96,13 +96,7 @@ export default function Component() {
                             <div className="flex flex-wrap gap-2">
                                 {usersPending && <ListLoader height={'h-6'} />}
                                 {users?.map?.((user: User) => (
-                                    <div key={user.id} className="flex items-center bg-gray-700 rounded-full px-3 py-1">
-                                        <Avatar className="w-6 h-6 mr-2">
-                                            <AvatarImage src={user.avatar_url} alt={user.name} />
-                                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <span className="text-sm">{user.name}</span>
-                                    </div>
+                                    <UserAvatar key={user.id} user={user}/>
                                 ))}
                             </div>
                             <Button variant="link" className="mt-2 text-white" onClick={() => handleShare(report)}>
