@@ -3,5 +3,8 @@ export type User = {
     name: string;
     email: string;
     avatar_url?: string;
-    permission?: 'full access' | 'edit' | 'view';
+    projectRole?: 'admin' | 'editor' | 'viewer';
+    reportRole?: 'admin' | 'editor' | 'viewer';
+    documentRole?: 'admin' | 'editor' | 'viewer';
+    permission?: 'admin' | 'edit' | 'view';
 }

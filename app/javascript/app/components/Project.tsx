@@ -14,7 +14,9 @@ import { format } from "date-fns";
 import useCreateReport from '@/api/useCreateReport'
 import useFetchDocuments from '@/api/useFetchDocuments'
 import useCreateDocument from '@/api/useCreateDocument'
+import useUpdateUser from '@/api/useUpdateUser'
 import useFetchUsers from '@/api/useFetchUsers'
+import useFetchUser from '@/api/useFetchUser'
 import ShareDialog from './shared/ShareDialog'
 import Header from './shared/Header'
 import Layout from './shared/Layout'
@@ -26,6 +28,9 @@ export default function Component() {
 
     const { isPending, data: project } = useFetchProject(id);
     const { isPending: usersPending, data: users } = useFetchUsers();
+    const { isPending: userPending, data: me } = useFetchUser();
+
+    
 
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
     const [sharingItem, setSharingItem] = useState<Report | Document | typeof project | null>(null);
@@ -34,6 +39,21 @@ export default function Component() {
         setSharingItem(item);
         setIsShareDialogOpen(true);
     };
+
+    const addUser = (newUserMail: string, permission: string) => {
+        console.log('PROJECT.TSX - addUser', newUserMail, permission);
+    }
+
+    const updateUser = (newUserMail: string, permission: string, resource: any, user: User) => {
+        console.log('PROJECT.TSX - UpdateUser', newUserMail, permission, resource, user);
+    }
+
+    const saveUserPermission = (user: User) => {
+        console.log('PROJECT.TSX - chamaoEndpoint', user.id, user.projectRole, user.reportRole, user.documentRole);
+        const {mutate} = useUpdateUser(user.id, user.projectRole, user.reportRole, user.documentRole);
+        //mutate({ opa: eai });
+        console.log('PROJECT.TSX - teste', mutate);
+    }
 
     return (
         <Layout>
@@ -67,16 +87,23 @@ export default function Component() {
                                     </div>
                                 ))}
                             </div>
+                            {console.log('PROJECT.TSX - me', me)}
+                            { me.projectRole==='admin' ?
                             <Button variant="link" className="mt-2 text-white" onClick={() => handleShare(project)}>
                                 <Share2 className="w-4 h-4 mr-2" />
                                 Manage Sharing
-                            </Button>
+                            </Button>: ''}
+
                         </CardContent>
                     </Card>
 
                     <div className="grid gap-6 md:grid-cols-2">
-                        <ProjectReports handleShare={handleShare} />
-                        <ProjectDocuments handleShare={handleShare} />
+                    { me.reportRole==='view' ? '':
+                     <ProjectReports handleShare={handleShare} />}
+                        
+                    { me.documentRole==='view' ? '':
+                      <ProjectDocuments handleShare={handleShare} />}
+                       
                     </div>
                 </>}
             </Page>
@@ -85,12 +112,10 @@ export default function Component() {
                 title={sharingItem ? sharingItem === project ? `Share Project: ${project.name}` : 'title' in sharingItem ? `Share Report: ${sharingItem.title}` : `Share Document: ${sharingItem.name}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
-                    alert('Function not implemented.')
-                }}
-                handleAddUser={function (): void {
-                    alert('Function not implemented.')
-                }}
+                handleAddUser={(userNewEmail: any, permission:string) => addUser(userNewEmail, permission) }
+                handleUpdateUserPermission={(userNewEmail: any, permission: string, resource: any, user: User) => updateUser(userNewEmail, permission, resource, user )}
+                saveUserPermissions={(user: User) => saveUserPermission(user)}
+
             />
         </Layout>
     )
@@ -101,6 +126,7 @@ const ProjectReports = ({ handleShare }: {
 }) => {
     const { id: projectId } = useParams<{ id: string }>();
     const { isPending, data: reports } = useFetchReports(projectId);
+    const { isPending: userPending, data: me } = useFetchUser();
     const { mutate } = useCreateReport(projectId);
 
     const [newReportTitle, setNewReportTitle] = useState('');
@@ -130,9 +156,11 @@ const ProjectReports = ({ handleShare }: {
                         <Link to={`/reports/${report.id}`} className="hover:text-gray-300">{report.title}</Link>
                         <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-300">{format(new Date(report.created_at || ''), "MM/dd/yyyy")}</span>
+                            { me.projectRole==='edit' || me.projectRole==='admin' ?
                             <Button variant="link" size="icon" onClick={() => handleShare(report)}>
                                 <Share2 className="h-4 w-4 text-white" />
-                            </Button>
+                            </Button>: ''}
+
                         </div>
                     </div>
                 ))}
@@ -159,6 +187,7 @@ const ProjectDocuments = ({ handleShare }: {
     const { id: projectId } = useParams<{ id: string }>();
 
     const { isPending, data: documents } = useFetchDocuments(projectId);
+    const { isPending: userPending, data: me } = useFetchUser();
     const { mutate } = useCreateDocument(projectId);
 
 
@@ -190,9 +219,10 @@ const ProjectDocuments = ({ handleShare }: {
                         <Link to={`/documents/${document.id}`} className="hover:text-gray-300">{document.name}</Link>
                         <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-300">{format(new Date(document.created_at || ''), "MM/dd/yyyy")}</span>
+                            { me.documentRole==='edit' || me.documentRole==='admin' ?
                             <Button variant="link" size="icon" onClick={() => handleShare(document)}>
                                 <Share2 className="h-4 w-4 text-white" />
-                            </Button>
+                            </Button>: ''}
                         </div>
                     </div>
                 ))}
