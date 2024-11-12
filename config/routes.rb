@@ -8,7 +8,7 @@ Rails.application.routes.draw do
     resources :reports
   end
 
-  resources :users, only: [:index]
+  resources :users, only: [:index, :update]
 
   devise_for :users
   root 'home#index'

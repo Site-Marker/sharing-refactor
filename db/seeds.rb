@@ -12,25 +12,37 @@
     "name": "Tyler Durden",
     "avatar_url": "https://avatar.iran.liara.run/username?username=tyler+durden",
     "email": "tylerdurden@example.com",
-    "password": "testing123"
+    "password": "testing123",
+    "projectRole": "admin",
+    "documentRole": "admin",
+    "reportRole": "admin"
 },
 {
     "name": "Jack Durden",
     "avatar_url": "https://avatar.iran.liara.run/username?username=jack+durden",
     "email": "jackdurden@example.com",
-    "password": "testing123"
+    "password": "testing123",
+    "projectRole": "edit",
+    "documentRole": "edit",
+    "reportRole": "edit"
 },
 {
     "name": "Marla Singer",
     "avatar_url": "https://avatar.iran.liara.run/username?username=marla+singer",
     "email": "marlasinger@example.com",
-    "password": "testing123"
+    "password": "testing123",
+    "projectRole": "view",
+    "documentRole": "view",
+    "reportRole": "edit"
 },
 {
     "name": "Robert Paulson",
     "avatar_url": "https://avatar.iran.liara.run/username?username=robert+paulson",
     "email": "robertpaulson@example.com",
-    "password": "testing123"
+    "password": "testing123",
+    "projectRole": "admin",
+    "documentRole": "admin",
+    "reportRole": "admin"
 }].each do |user|
     User.create(user)
 end
