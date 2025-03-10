@@ -63,7 +63,30 @@ class DocumentsController < ApiController
   private
 
     def set_project
-      @project = current_user.created_projects.find(params[:project_id]) if params[:project_id]
+      shared = params[:shared]
+      if shared.present? && shared == 'true'
+        project = Project.find(params[:project_id])
+
+        if project.nil?
+          render json: { error: "Resource not found" }, status: :not_found
+          return
+        end
+
+        view_access_check = SharingPermission.exists?(
+          user_id: current_user.id,
+          resource_type: 'project',
+          project_id: params[:project_id]
+        )
+
+        unless view_access_check
+          render json: { error: "Unauthorized: You do not have permission to view for this resource" }, status: :unauthorized
+          return
+        end
+
+        @project = project
+      else
+        @project = current_user.created_projects.find(params[:project_id]) if params[:project_id]
+      end
     end
 
     # Use callbacks to share common setup or constraints between actions.

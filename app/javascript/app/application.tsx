@@ -13,6 +13,7 @@ import Document from "@/components/Document";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Icon from "@/components/shared/Icon";
 import useFetchUser from "./api/useFetchUser";
+import { User } from "./models";
 
 const queryClient = new QueryClient()
 
@@ -30,14 +31,14 @@ const LandingPage = () => {
 
     if (isPending) return <Loader />;
 
-    return user ? <App /> : <WelcomePage />
+    return user ? <App user={user} /> : <WelcomePage />
 }
 
-const App = () => {
+const App = ({ user }: { user: User }) => {
     return <BrowserRouter>
         <Routes>
-            <Route path="/" element={<Projects />} />
-            <Route path="/projects/:id" element={<Project />} />
+            <Route path="/" element={<Projects user={user} />} />
+            <Route path="/projects/:id" element={<Project user={user} />} />
             <Route path="/reports/:id" element={<Report />} />
             <Route path="/documents/:id" element={<Document />} />
         </Routes>

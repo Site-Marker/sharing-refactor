@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_25_221451) do
+ActiveRecord::Schema[7.1].define(version: 2025_03_09_154919) do
   create_table "documents", force: :cascade do |t|
     t.string "name"
     t.integer "project_id", null: false
@@ -40,6 +40,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_25_221451) do
     t.index ["user_id"], name: "index_reports_on_user_id"
   end
 
+  create_table "sharing_permissions", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "creator_id", null: false
+    t.integer "project_id"
+    t.integer "document_id"
+    t.integer "report_id"
+    t.string "resource_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "access_level"
+    t.index ["creator_id"], name: "index_sharing_permissions_on_creator_id"
+    t.index ["document_id"], name: "index_sharing_permissions_on_document_id"
+    t.index ["project_id"], name: "index_sharing_permissions_on_project_id"
+    t.index ["report_id"], name: "index_sharing_permissions_on_report_id"
+    t.index ["user_id"], name: "index_sharing_permissions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -59,4 +76,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_25_221451) do
   add_foreign_key "projects", "users"
   add_foreign_key "reports", "projects"
   add_foreign_key "reports", "users"
+  add_foreign_key "sharing_permissions", "documents"
+  add_foreign_key "sharing_permissions", "projects"
+  add_foreign_key "sharing_permissions", "reports"
+  add_foreign_key "sharing_permissions", "users"
+  add_foreign_key "sharing_permissions", "users", column: "creator_id"
 end

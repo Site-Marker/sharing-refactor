@@ -114,7 +114,8 @@ export default function Component() {
                     </Card>
                 </>}
             </Page>
-            <ShareDialog
+             {/* commented this code so the ui does not crash, pending to be implemented */}
+            {/* <ShareDialog
                 users={users}
                 title={sharingItem ? `Share Document: ${sharingItem.name}` : 'Share'}
                 isOpen={isShareDialogOpen}
@@ -124,7 +125,7 @@ export default function Component() {
                 }} handleAddUser={function (): void {
                     throw new Error('Function not implemented.')
                 }}
-            />
+            /> */}
         </Layout>
     )
 }

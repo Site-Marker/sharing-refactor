@@ -8,5 +8,6 @@ class User < ApplicationRecord
   has_many :created_projects, class_name: 'Project', inverse_of: :user
   has_many :created_reports, class_name: 'Report', inverse_of: :user
   has_many :created_documents, class_name: 'Document', inverse_of: :user
+  has_many :sharing_permissions
   
 end

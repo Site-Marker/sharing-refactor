@@ -6,6 +6,7 @@ const getHeaders = {
 }
 
 const postHeaders = () => ({
+    'Accept': 'application/json',
     'Content-Type': 'application/json',
     'X-CSRF-Token': getCsrf()
 })

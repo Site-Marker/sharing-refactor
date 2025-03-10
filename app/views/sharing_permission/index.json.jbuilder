@@ -1,0 +1,1 @@
+json.array! @sharing_permissions, partial: "sharing_permission/sharing_permission", as: :sharing_permission

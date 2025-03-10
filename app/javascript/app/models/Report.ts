@@ -4,5 +4,5 @@ export type Report = {
     id?: number;
     title: string;
     created_at?: string;
-    sharedWith?: User[];
+    sharing_permissions?: User[];
 }
