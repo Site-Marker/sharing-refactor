@@ -26,8 +26,7 @@ export default function Component() {
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-    const { isPending: isUsersPending, data: users } = useFetchUsers();
+    const { data: users } = useFetchUsers();
 
     const handleCreateProject = () => {
         if (newProjectName.trim()) {
@@ -119,7 +118,7 @@ export default function Component() {
                 title={`Share Project: ${selectedProject?.name}`}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
+                handleUpdateUserPermission={function (): void {
                     alert('Function not implemented.')
                 }} handleAddUser={function (): void {
                     alert('Function not implemented.')

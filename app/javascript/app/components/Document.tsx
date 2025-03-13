@@ -82,7 +82,7 @@ export default function Component() {
                                             <Label htmlFor="projectName">Name</Label>
                                             <Input
                                                 id="projectName"
-                                                value={!!newDocumentName ? newDocumentName : document.name}
+                                                value={newDocumentName || document.name}
                                                 onChange={(e) => setNewDocumentName(e.target.value)}
                                                 className="bg-gray-700 text-white border-gray-600"
                                             />
@@ -119,7 +119,7 @@ export default function Component() {
                 title={sharingItem ? `Share Document: ${sharingItem.name}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
+                handleUpdateUserPermission={function (): void {
                     throw new Error('Function not implemented.')
                 }} handleAddUser={function (): void {
                     throw new Error('Function not implemented.')

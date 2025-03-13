@@ -85,7 +85,7 @@ export default function Component() {
                 title={sharingItem ? sharingItem === project ? `Share Project: ${project.name}` : 'title' in sharingItem ? `Share Report: ${sharingItem.title}` : `Share Document: ${sharingItem.name}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
+                handleUpdateUserPermission={function (): void {
                     alert('Function not implemented.')
                 }}
                 handleAddUser={function (): void {

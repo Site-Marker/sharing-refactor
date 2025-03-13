@@ -81,7 +81,7 @@ export default function Component() {
                                             <Label htmlFor="projectName">Name</Label>
                                             <Input
                                                 id="projectName"
-                                                value={!!newReportTitle ? newReportTitle : report.title}
+                                                value={newReportTitle || report.title}
                                                 onChange={(e) => setNewReportTitle(e.target.value)}
                                                 className="bg-gray-700 text-white border-gray-600"
                                             />
@@ -118,7 +118,7 @@ export default function Component() {
                 title={sharingItem ? `Share Report: ${sharingItem.title}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
+                handleUpdateUserPermission={function (): void {
                     alert('Function not implemented.')
                 }} handleAddUser={function (): void {
                     alert('Function not implemented.')
