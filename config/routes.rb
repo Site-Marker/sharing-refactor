@@ -8,6 +8,9 @@ Rails.application.routes.draw do
     resources :reports
   end
 
+  resources :sharing_permission
+  delete 'sharing_permission' => 'sharing_permission#destroy'
+
   resources :users, only: [:index]
 
   devise_for :users

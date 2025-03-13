@@ -1,0 +1,1 @@
+json.partial! "sharing_permission/sharing_permission", sharing_permission: @sharing_permission

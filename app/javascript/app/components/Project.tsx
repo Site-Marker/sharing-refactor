@@ -4,7 +4,7 @@ import { Input } from "@/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/ui/avatar"
 import { Plus, FileText, Upload, Share2, ArrowLeft } from "lucide-react"
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import useFetchProject from '@/api/useFetchProject'
 import { ListLoader } from './Projects'
 import useFetchReports from '@/api/useFetchReports'
@@ -19,21 +19,37 @@ import ShareDialog from './shared/ShareDialog'
 import Header from './shared/Header'
 import Layout from './shared/Layout'
 import Page from './shared/Page'
+import useShareResource from '@/api/useShareResource'
+import { SharingPermission } from '@/models/SharingPermission'
+import useDeleteShareResource from '@/api/useDeleteShareResource'
 
-export default function Component() {
+type HandleShare = (item: Report | Document | Project, type: SharingPermission['resource_type']) => void;
+
+export default function Component({ user } : { user : User }) {
+    const [searchParams] = useSearchParams();
+    const shared = searchParams.get('shared');
 
     const { id } = useParams<{ id: string }>();
 
-    const { isPending, data: project } = useFetchProject(id);
+    const { isPending, data: project } = useFetchProject(id, !!shared);
     const { isPending: usersPending, data: users } = useFetchUsers();
 
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
     const [sharingItem, setSharingItem] = useState<Report | Document | typeof project | null>(null);
+    const [resourceType, setResourceType] = useState<SharingPermission['resource_type']>('project')
+    const [existingPermissions, setExistingPermissions] = useState<User[]>([])
 
-    const handleShare = (item: Report | Document | typeof project) => {
+    const handleShare = (item: Report | Document | typeof project, type: SharingPermission['resource_type']) => {
         setSharingItem(item);
+        setResourceType(type);
+        setExistingPermissions(item.sharing_permissions);
         setIsShareDialogOpen(true);
     };
+
+    const { mutate: shareResourceMutate } = useShareResource(resourceType, () => setIsShareDialogOpen(false));
+    const { mutate: shareDeleteMutate } = useDeleteShareResource(resourceType, () => setIsShareDialogOpen(false));
+
+    const accessLevel = project?.sharing_permissions?.find((permission : User ) => permission.id === user.id)?.permission;
 
     return (
         <Layout>
@@ -53,6 +69,7 @@ export default function Component() {
                             <CardTitle className="text-2xl">{project.name}</CardTitle>
                             <CardDescription className="text-gray-300">{project.description}</CardDescription>
                         </CardHeader>
+                        {(accessLevel === 'full access' || !shared) && (
                         <CardContent className="text-white">
                             <h3 className="text-lg font-semibold mb-2">Available Users:</h3>
                             <div className="flex flex-wrap gap-2">
@@ -67,40 +84,58 @@ export default function Component() {
                                     </div>
                                 ))}
                             </div>
-                            <Button variant="link" className="mt-2 text-white" onClick={() => handleShare(project)}>
+                            <Button variant="link" className="mt-2 text-white" onClick={() => handleShare(project, 'project')}>
                                 <Share2 className="w-4 h-4 mr-2" />
                                 Manage Sharing
                             </Button>
                         </CardContent>
+                        )}
                     </Card>
 
                     <div className="grid gap-6 md:grid-cols-2">
-                        <ProjectReports handleShare={handleShare} />
-                        <ProjectDocuments handleShare={handleShare} />
+                        <ProjectReports handleShare={handleShare} shared={!!shared} accessLevel={accessLevel} />
+                        <ProjectDocuments handleShare={handleShare} shared={!!shared} accessLevel={accessLevel} />
                     </div>
                 </>}
             </Page>
             <ShareDialog
                 users={users}
-                title={sharingItem ? sharingItem === project ? `Share Project: ${project.name}` : 'title' in sharingItem ? `Share Report: ${sharingItem.title}` : `Share Document: ${sharingItem.name}` : 'Share'}
+                resourceId={sharingItem?.id}
+                permissions={existingPermissions}
+                title={sharingItem ? resourceType === 'project' ? `Share Project: ${project.name}` : 'title' in sharingItem ? `Share Report: ${sharingItem.title}` : `Share Document: ${sharingItem.name}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
-                    alert('Function not implemented.')
+                handleUpdateUserPermission={function (userId: number, resourceId : number, permission: 'full access' | 'edit' | 'view'): void {
+                    shareResourceMutate({
+                        user_id: userId,
+                        resource_type: resourceType,
+                        access_level: permission,
+                        ...(resourceType === 'project' && { project_id: resourceId }),
+                        ...(resourceType === 'document' && { document_id: resourceId }),
+                        ...(resourceType === 'report' && { report_id: resourceId }),
+                    });
                 }}
-                handleAddUser={function (): void {
-                    alert('Function not implemented.')
+                handleDeleteUserPermission={function (userId: number, resourceId : number) {
+                    shareDeleteMutate({
+                        user_id: userId,
+                        resource_type: resourceType,
+                        ...(resourceType === 'project' && { project_id: resourceId }),
+                        ...(resourceType === 'document' && { document_id: resourceId }),
+                        ...(resourceType === 'report' && { report_id: resourceId }),
+                    })
                 }}
             />
         </Layout>
     )
 }
 
-const ProjectReports = ({ handleShare }: {
-    handleShare: (item: Report | Document | Project) => void;
+const ProjectReports = ({ handleShare, shared, accessLevel }: {
+    handleShare: HandleShare;
+    shared: boolean;
+    accessLevel: SharingPermission['access_level']
 }) => {
     const { id: projectId } = useParams<{ id: string }>();
-    const { isPending, data: reports } = useFetchReports(projectId);
+    const { isPending, data: reports } = useFetchReports(shared, projectId);
     const { mutate } = useCreateReport(projectId);
 
     const [newReportTitle, setNewReportTitle] = useState('');
@@ -130,35 +165,42 @@ const ProjectReports = ({ handleShare }: {
                         <Link to={`/reports/${report.id}`} className="hover:text-gray-300">{report.title}</Link>
                         <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-300">{format(new Date(report.created_at || ''), "MM/dd/yyyy")}</span>
-                            <Button variant="link" size="icon" onClick={() => handleShare(report)}>
+                            {(accessLevel === 'full access' || !shared) && (
+                            <Button variant="link" size="icon" onClick={() => handleShare(report, 'report')}>
                                 <Share2 className="h-4 w-4 text-white" />
                             </Button>
+                            )}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex space-x-2">
-                <Input
-                    placeholder="New report title"
-                    value={newReportTitle}
-                    onChange={(e) => setNewReportTitle(e.target.value)}
-                    className="bg-gray-700 text-white border-gray-600"
-                />
-                <Button onClick={handleCreateReport}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create
-                </Button>
-            </div>
+            {!shared && (
+                <div className="flex space-x-2">
+                    <Input
+                        placeholder="New report title"
+                        value={newReportTitle}
+                        onChange={(e) => setNewReportTitle(e.target.value)}
+                        className="bg-gray-700 text-white border-gray-600"
+                    />
+                    <Button onClick={handleCreateReport}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create
+                    </Button>
+                </div>
+            )}
+            
         </CardContent>
     </Card>
 }
 
-const ProjectDocuments = ({ handleShare }: {
-    handleShare: (item: Report | Document | Project) => void;
+const ProjectDocuments = ({ handleShare, shared, accessLevel }: {
+    handleShare: HandleShare;
+    shared: boolean;
+    accessLevel: SharingPermission['access_level']
 }) => {
     const { id: projectId } = useParams<{ id: string }>();
 
-    const { isPending, data: documents } = useFetchDocuments(projectId);
+    const { isPending, data: documents } = useFetchDocuments(!!shared, projectId);
     const { mutate } = useCreateDocument(projectId);
 
 
@@ -175,6 +217,7 @@ const ProjectDocuments = ({ handleShare }: {
         }
     };
 
+
     return <Card className="bg-gray-800 border-gray-700 text-white">
         <CardHeader>
             <CardTitle className="flex items-center">
@@ -190,13 +233,14 @@ const ProjectDocuments = ({ handleShare }: {
                         <Link to={`/documents/${document.id}`} className="hover:text-gray-300">{document.name}</Link>
                         <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-300">{format(new Date(document.created_at || ''), "MM/dd/yyyy")}</span>
-                            <Button variant="link" size="icon" onClick={() => handleShare(document)}>
+                            {(accessLevel === 'full access' || !shared) && (<Button variant="link" size="icon" onClick={() => handleShare(document, 'document')}>
                                 <Share2 className="h-4 w-4 text-white" />
-                            </Button>
+                            </Button>)}
                         </div>
                     </div>
                 ))}
             </div>
+            {!shared && (
             <div className="flex space-x-2">
                 <Input
                     placeholder="New document name"
@@ -209,6 +253,7 @@ const ProjectDocuments = ({ handleShare }: {
                     Add
                 </Button>
             </div>
+            )}
         </CardContent>
     </Card>;
 }

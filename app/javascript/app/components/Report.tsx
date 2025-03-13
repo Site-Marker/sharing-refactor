@@ -113,17 +113,17 @@ export default function Component() {
                     </Card>
                 </>}
             </Page>
-            <ShareDialog
+            {/* commented this code so the ui does not crash, pending to be implemented */}
+            {/* <ShareDialog
                 users={users}
+                resourceId={report.id}
                 title={sharingItem ? `Share Report: ${sharingItem.title}` : 'Share'}
                 isOpen={isShareDialogOpen}
                 onClose={() => setIsShareDialogOpen(false)}
-                handleUpdateUserPermission={function (userId: number, permission: 'full access' | 'edit' | 'view'): void {
-                    alert('Function not implemented.')
-                }} handleAddUser={function (): void {
+                handleUpdateUserPermission={function (userId: number, resourceId: number, permission: 'full access' | 'edit' | 'view'): void {
                     alert('Function not implemented.')
                 }}
-            />
+            /> */}
         </Layout>
     )
 }
