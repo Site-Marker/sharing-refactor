@@ -36,13 +36,19 @@ Currently, **only the creator of a project is able to view the project and it's 
 Update this rails application with the necessary changes to allow creators of `Project`s, `Report`s and `Document`s the ability to share their creations with other users.
 
 Users should also have the **ability to assign a permission level when sharing a resource.**\
-The permissions levels should resemble the following:
-- **Full Access**
-    - User can edit the resource, manage sharing and view/edit/create/manage sharing on any subresources.
-- **Edit**
-    - User can view and edit the resource and any subresources only, with no ability to create or manage sharing.
-- **View**
-    - User has view-only access to the resource and its subresources.
+The permissions should be implemented as role-based access control with the following roles:
+- **Admin**
+    - User can perform all actions including editing, deleting, managing sharing permissions, and transferring ownership of the resource.
+- **Collaborator**
+    - User can view and edit the resource, but cannot delete it or manage who it's shared with.
+- **Reviewer**
+    - User can view the resource and add comments (you'll need to implement a simple commenting feature), but cannot edit the core content.
+- **Reader**
+    - User has view-only access to the resource.
+
+Additionally, implement permission inheritance with the following rules:
+- A user with access to a project should automatically have access to all reports and documents within that project, but at the same or lower permission level.
+- The system should prevent permission conflicts (e.g., a user shouldn't have higher permissions on a child resource than its parent).
 
 **Add the Model(s) and API(s) necessary to allow users to do the above and unit/integration test coverage around these changes.**
 
@@ -50,6 +56,7 @@ The permissions levels should resemble the following:
 
 - Include Technical Documentation about your changes.
 - Update the front-end with UX for sharing a project/report/document with other users.
+- Implement an audit trail to track when resources are shared and permissions are changed.
 - Refactor! No application is perfect and this one is no exception. Refactors welcome, leave comments so we know why.
 
 ## Getting Started

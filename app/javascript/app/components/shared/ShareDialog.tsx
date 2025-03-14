@@ -13,7 +13,7 @@ export default function ShareDialog({
     title = 'Share',
     users,
 }: {
-    handleUpdateUserPermission: (userId: number, permission: 'full access' | 'edit' | 'view') => void;
+    handleUpdateUserPermission: (userId: number, permission: 'admin' | 'collaborator' | 'reviewer' | 'reader') => void;
     handleAddUser: () => void;
     isOpen: boolean;
     onClose: () => void;
@@ -22,18 +22,20 @@ export default function ShareDialog({
 }) {
 
     const [newUserEmail, setNewUserEmail] = useState('');
-    const [newUserPermission, setNewUserPermission] = useState<'full access' | 'edit' | 'view'>('view');
+    const [newUserPermission, setNewUserPermission] = useState<'admin' | 'collaborator' | 'reviewer' | 'reader'>('reader');
 
-    const getPermissionLabel = (permission: 'full access' | 'edit' | 'view' | undefined | null) => {
+    const getPermissionLabel = (permission: 'admin' | 'collaborator' | 'reviewer' | 'reader' | undefined | null) => {
         if (!permission) return 'Select permission';
 
         switch (permission) {
-            case 'full access':
-                return 'Full Access';
-            case 'edit':
-                return 'Edit';
-            case 'view':
-                return 'View';
+            case 'admin':
+                return 'Admin';
+            case 'collaborator':
+                return 'Collaborator';
+            case 'reviewer':
+                return 'Reviewer';
+            case 'reader':
+                return 'Reader';
             default:
                 return 'Select permission';
         }
@@ -52,27 +54,33 @@ export default function ShareDialog({
                         onChange={(e) => setNewUserEmail(e.target.value)}
                         className="bg-gray-700 text-white border-gray-600"
                     />
-                    <Select value={newUserPermission} onValueChange={(value: 'full access' | 'edit' | 'view') => setNewUserPermission(value)}>
+                    <Select value={newUserPermission} onValueChange={(value: 'admin' | 'collaborator' | 'reviewer' | 'reader') => setNewUserPermission(value)}>
                         <SelectTrigger className="w-[200px] bg-gray-700 text-white border-gray-600">
                             <SelectValue>{getPermissionLabel(newUserPermission)}</SelectValue>
                         </SelectTrigger>
                         <SelectContent className="bg-gray-700 text-white border-gray-600">
-                            <SelectItem value="full access">
+                            <SelectItem value="admin">
                                 <div className="flex flex-col">
-                                    <span>Full Access</span>
-                                    <span className="text-xs text-gray-400">Can edit and manage permissions</span>
+                                    <span>Admin</span>
+                                    <span className="text-xs text-gray-400">Can edit, delete, manage sharing and transfer ownership</span>
                                 </div>
                             </SelectItem>
-                            <SelectItem value="edit">
+                            <SelectItem value="collaborator">
                                 <div className="flex flex-col">
-                                    <span>Edit</span>
-                                    <span className="text-xs text-gray-400">Can make changes to the project</span>
+                                    <span>Collaborator</span>
+                                    <span className="text-xs text-gray-400">Can view and edit, but cannot delete or manage sharing</span>
                                 </div>
                             </SelectItem>
-                            <SelectItem value="view">
+                            <SelectItem value="reviewer">
                                 <div className="flex flex-col">
-                                    <span>View</span>
-                                    <span className="text-xs text-gray-400">Can only view the project</span>
+                                    <span>Reviewer</span>
+                                    <span className="text-xs text-gray-400">Can view and add comments only</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="reader">
+                                <div className="flex flex-col">
+                                    <span>Reader</span>
+                                    <span className="text-xs text-gray-400">Can only view the resource</span>
                                 </div>
                             </SelectItem>
                         </SelectContent>
@@ -94,28 +102,34 @@ export default function ShareDialog({
                             </div>
                             <Select
                                 value={user.permission}
-                                onValueChange={(value: 'full access' | 'edit' | 'view') => handleUpdateUserPermission(user.id, value)}
+                                onValueChange={(value: 'admin' | 'collaborator' | 'reviewer' | 'reader') => handleUpdateUserPermission(user.id, value)}
                             >
                                 <SelectTrigger className="w-[200px] bg-gray-600 text-white border-gray-500">
                                     <SelectValue>{getPermissionLabel(user.permission || null)}</SelectValue>
                                 </SelectTrigger>
                                 <SelectContent className="bg-gray-700 text-white border-gray-600">
-                                    <SelectItem value="full access">
+                                    <SelectItem value="admin">
                                         <div className="flex flex-col">
-                                            <span>Full Access</span>
-                                            <span className="text-xs text-gray-400">Can edit and manage permissions</span>
+                                            <span>Admin</span>
+                                            <span className="text-xs text-gray-400">Can edit, delete, manage sharing and transfer ownership</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="edit">
+                                    <SelectItem value="collaborator">
                                         <div className="flex flex-col">
-                                            <span>Edit</span>
-                                            <span className="text-xs text-gray-400">Can make changes to the project</span>
+                                            <span>Collaborator</span>
+                                            <span className="text-xs text-gray-400">Can view and edit, but cannot delete or manage sharing</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="view">
+                                    <SelectItem value="reviewer">
                                         <div className="flex flex-col">
-                                            <span>View</span>
-                                            <span className="text-xs text-gray-400">Can only view the project</span>
+                                            <span>Reviewer</span>
+                                            <span className="text-xs text-gray-400">Can view and add comments only</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="reader">
+                                        <div className="flex flex-col">
+                                            <span>Reader</span>
+                                            <span className="text-xs text-gray-400">Can only view the resource</span>
                                         </div>
                                     </SelectItem>
                                 </SelectContent>
