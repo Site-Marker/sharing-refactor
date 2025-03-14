@@ -3,5 +3,5 @@ export type User = {
     name: string;
     email: string;
     avatar_url?: string;
-    permission?: 'full access' | 'edit' | 'view';
+    permission?: 'admin' | 'collaborator' | 'reviewer' | 'reader';
 }
